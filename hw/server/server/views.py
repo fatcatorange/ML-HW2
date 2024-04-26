@@ -7,6 +7,8 @@ import torch
 
 from django.http import JsonResponse
 
+torch.device('cpu')
+
 @csrf_exempt
 def generate_response(request):
     if request.method == 'POST':
@@ -15,8 +17,8 @@ def generate_response(request):
         if not prompt:
             return JsonResponse({'status': False, 'message': 'prompt 不能為空'}, status=400)
         try:
+            tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm-6b-int4", trust_remote_code=True)
             print(prompt)
-            tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm-6b", trust_remote_code=True)
             model = AutoModel.from_pretrained("THUDM/chatglm-6b-int4",trust_remote_code=True).float()
             model = model.eval()
             response, history = model.chat(tokenizer, prompt , history=[])
